@@ -11,8 +11,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@getgrit/cli": "^0.1.0-alpha.1731963650",
     "express": "^4.18.2",
-    "openai": "^3.2.1",
+    "openai": "^4.72.0",
     "queue": "^7.0.0",
     "socket.io": "^4.6.1",
     "uuid": "^9.0.0"
