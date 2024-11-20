@@ -1,30 +1,29 @@
-import {Configuration, OpenAIApi} from "openai";
+import OpenAI from "openai";
 import {getConfigVariable} from "./util.js";
 
 export default class OpenAiService {
     #openAi;
-    #model = "gpt-3.5-turbo-instruct";
+    #model = "gpt-4o-mini";
 
     constructor() {
         const apiKey = getConfigVariable("OPENAI_API_KEY")
 
-        const configuration = new Configuration({
-            apiKey
-        });
 
-        this.#openAi = new OpenAIApi(configuration)
+        this.#openAi = new OpenAI({
+            apiKey
+        })
     }
 
     async classify(categories, destinationName, description) {
         try {
             const prompt = this.#generatePrompt(categories, destinationName, description);
 
-            const response = await this.#openAi.createCompletion({
+            const response = await this.#openAi.chat.completions.create({
                 model: this.#model,
-                prompt
+                messages: [{"role": "user", "content": prompt}],
             });
-
-            let guess = response.data.choices[0].text;
+            console.log(response.choices[0].message);
+            let guess = response.choices[0].message.content;
             guess = guess.replace("\n", "");
             guess = guess.trim();
 
@@ -37,13 +36,13 @@ export default class OpenAiService {
 
             return {
                 prompt,
-                response: response.data.choices[0].text,
+                response: response.choices[0].message.content,
                 category: guess
             };
 
         } catch (error) {
-            if (error.response) {
-                console.error(error.response.status);
+            if (error instanceof OpenAI.APIError) {
+                console.error(error.status);
                 console.error(error.response.data);
                 throw new OpenAiException(error.status, error.response, error.response.data);
             } else {
