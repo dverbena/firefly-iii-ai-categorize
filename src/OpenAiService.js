@@ -27,17 +27,31 @@ export default class OpenAiService {
             guess = guess.replace("\n", "");
             guess = guess.trim();
 
-            if (categories.indexOf(guess) === -1) {
+            console.log(`OpenAIs guess: ${guess}`);
+
+            let guessIndex = -1;
+            categories.forEach(function(cat, index, array)
+                { 
+                    if(guess.toLowerCase().includes(cat.toLowerCase().trim()))
+                        guessIndex = index;
+                }
+            )
+
+            if (guessIndex === -1) {
                 console.warn(`OpenAI could not classify the transaction. 
-                Prompt: ${prompt}
-                OpenAIs guess: ${guess}`)
-                return null;
+                Categories in firefly III: ${categories.join(", ")}`)
+
+                return {
+                    prompt,
+                    response: response.choices[0].message.content,
+                    category: null
+                };
             }
 
             return {
                 prompt,
                 response: response.choices[0].message.content,
-                category: guess
+                category: categories[guessIndex]
             };
 
         } catch (error) {
@@ -53,9 +67,9 @@ export default class OpenAiService {
     }
 
     #generatePrompt(categories, destinationName, description) {
-        return `Given i want to categorize transactions on my bank account into this categories: ${categories.join(", ")}
-In which category would a transaction from "${destinationName}" with the subject "${description}" fall into?
-Just output the name of the category. Does not have to be a complete sentence.`;
+        return `Ho la seguente lista di categorie di spese con cui classificare le mie entrate ed uscite casalinghe: ${categories.join(", ")}.
+In quale delle suddette categorie potrebbe cadere una transazione originata da "${destinationName}" e vante la seguente descrizione "${description}"?
+Potresti rispondermi scrivendo solo il nome della categoria (esclusivamente fra quelle che ti ho fornito) senza formare una frase?`;
     }
 }
 
