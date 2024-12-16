@@ -1,5 +1,6 @@
 import express from "express";
 import {getConfigVariable} from "./util.js";
+import {getManualCategories} from "./util.js";
 import FireflyService from "./FireflyService.js";
 import OpenAiService from "./OpenAiService.js";
 import {Server} from "socket.io";
@@ -21,6 +22,7 @@ export default class App {
     #queue;
     #jobList;
 
+    #manualCategories;
 
     constructor() {
         this.#PORT = getConfigVariable("PORT", '3000');
@@ -65,7 +67,9 @@ export default class App {
         this.#io.on('connection', socket => {
             console.log('connected');
             socket.emit('jobs', Array.from(this.#jobList.getJobs().values()));
-        })
+        });
+        
+        this.#manualCategories = getManualCategories();
     }
 
     #onWebhook(req, res) {
@@ -77,6 +81,17 @@ export default class App {
             console.error(e)
             res.status(400).send(e.message);
         }
+    }
+
+    findCategory(description) {        
+        for (const category of this.#manualCategories.categories) {// Loop through each category in manualCategories            
+            if (description.toLowerCase().includes(category.transaction_contains.toLowerCase())) {// Check if the description contains the transaction_contains value
+                return category.category; // Return the category if a match is found
+            }
+        }
+
+        // Return null if no match is found
+        return null;
     }
 
     #handleWebhook(req, res) {
@@ -126,18 +141,33 @@ export default class App {
             this.#jobList.setJobInProgress(job.id);
 
             const categories = await this.#firefly.getCategories();
-
-            const {category, prompt, response} = await this.#openAi.classify(Array.from(categories.keys()), destinationName, description)
+            const catKeys = Array.from(categories.keys());
 
             const newData = Object.assign({}, job.data);
-            newData.category = category;
-            newData.prompt = prompt;
-            newData.response = response;
+
+            //first check if it's a manual defined category
+            const manualCategory = this.findCategory(description);
+
+            if(manualCategory && catKeys.map(key => key.toLowerCase()).includes(manualCategory.toLowerCase())) {
+                console.log(`Category found in manual configuration: ${manualCategory}`);
+
+                newData.category = manualCategory;
+                newData.prompt = 'Fetched from manual categories configuration';
+                newData.response = manualCategory;
+            }
+            else {
+                //try OpenAI
+                const {category, prompt, response} = await this.#openAi.classify(Array.from(catKeys), destinationName, description);
+
+                newData.category = category;
+                newData.prompt = prompt;
+                newData.response = response;
+            }
 
             this.#jobList.updateJobData(job.id, newData);
 
-            if (category) {
-                await this.#firefly.setCategory(req.body.content.id, req.body.content.transactions, categories.get(category));
+            if (newData.category) {
+                await this.#firefly.setCategory(req.body.content.id, req.body.content.transactions, categories.get(newData.category));
             }
 
             this.#jobList.setJobFinished(job.id);

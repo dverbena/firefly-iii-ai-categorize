@@ -65,7 +65,7 @@ export default class FireflyService {
             },
             body: JSON.stringify(body)
         });
-
+        
         if (!response.ok) {
             throw new FireflyException(response.status, response, await response.text())
         }

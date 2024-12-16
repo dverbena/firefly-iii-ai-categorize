@@ -1,0 +1,9 @@
+{
+    "categories": 
+    [
+        {
+            "transaction_contains": "text",
+            "category": "category"
+        }
+    ]
+}
