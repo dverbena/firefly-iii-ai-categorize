@@ -68,7 +68,7 @@ export default class OpenAiService {
 
     #generatePrompt(categories, destinationName, description) {
         return `Ho la seguente lista di categorie di spese con cui classificare le mie entrate ed uscite casalinghe: ${categories.join(", ")}.
-In quale delle suddette categorie potrebbe cadere una transazione originata da "${destinationName}" e vante la seguente descrizione "${description}"?
+In quale delle suddette categorie potrebbe cadere una transazione originata da "${destinationName}" e avente la seguente descrizione "${description}"?
 Potresti rispondermi scrivendo solo il nome della categoria (esclusivamente fra quelle che ti ho fornito) senza formare una frase?`;
     }
 }
