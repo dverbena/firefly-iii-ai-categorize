@@ -68,13 +68,13 @@ export default class App {
             console.log('connected');
             socket.emit('jobs', Array.from(this.#jobList.getJobs().values()));
         });
-        
-        this.#manualCategories = getManualCategories();
     }
 
     #onWebhook(req, res) {
         try {
             console.info("Webhook triggered");
+        
+            this.#manualCategories = getManualCategories();
             this.#handleWebhook(req, res);
             res.send("Queued");
         } catch (e) {
