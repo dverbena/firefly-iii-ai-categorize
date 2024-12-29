@@ -1,2 +1,2 @@
 docker login
-docker buildx build --push -t danyver/firefly-iii-ai-categorize:latest .
+docker buildx build --platform=linux/arm64/v8 --push -t danyver/firefly-iii-ai-categorize:latest .
