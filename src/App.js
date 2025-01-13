@@ -183,12 +183,12 @@ export default class App {
                 await this.#firefly.setCategory(req.body.content.id, req.body.content.transactions, categories.get(newData.category));
             }
 
-            try {
-                console.info("Trying to update payment date");
-                await this.#firefly.setDate(req.body.content.id, req.body.content.transactions, this.extractDate(description));
-            } catch (e) {
-                console.error(`Error updating payment date: ${e}`);
-            }
+            // try {
+            //     console.info("Trying to update payment date");
+            //     await this.#firefly.setDate(req.body.content.id, req.body.content.transactions, this.extractDate(description));
+            // } catch (e) {
+            //     console.error(`Error updating payment date: ${e}`);
+            // }
 
             this.#jobList.setJobFinished(job.id);
         });
