@@ -73,6 +73,44 @@ export default class FireflyService {
         await response.json();
         console.info("Transaction updated")
     }
+
+    async setDate(transactionId, transactions, date) {
+        const body = {
+            apply_rules: true,
+            fire_webhooks: true,
+            transactions: [],
+        }
+
+        transactions.forEach(transaction => {
+            let tags = transaction.tags;
+            if (!tags) {
+                tags = [];
+            }
+            tags.push(tag);
+
+            body.transactions.push({
+                transaction_journal_id: transaction.transaction_journal_id,
+                payment_date: date,
+                tags: tags,
+            });
+        })
+
+        const response = await fetch(`${this.#BASE_URL}/api/v1/transactions/${transactionId}`, {
+            method: "PUT",
+            headers: {
+                Authorization: `Bearer ${this.#PERSONAL_TOKEN}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(body)
+        });
+        
+        if (!response.ok) {
+            throw new FireflyException(response.status, response, await response.text())
+        }
+
+        await response.json();
+        console.info("Transaction updated")
+    }
 }
 
 class FireflyException extends Error {
