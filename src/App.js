@@ -95,15 +95,18 @@ export default class App {
     }
 
     extractDate(input) {
-        const regex = /del (\d{2}\/\d{2}\/\d{4})/; // Matches "del dd/MM/yyyy"
+        const regex = /(\d{2}\/\d{2}\/\d{4})/; // Matches "dd/MM/yyyy"
         const match = input.match(regex);
     
         if (match) {
             const [day, month, year] = match[1].split('/'); // Extract day, month, year
             const formattedDate = `${year}-${month}-${day}00:00:00+01:00`; // Reformat
+
+            console.log(`Found date in description: ${formattedDate}`);
             return formattedDate;
         }
-    
+                
+        console.log('No date found in description');
         return null; // Return null if no match
     }
 
@@ -183,12 +186,12 @@ export default class App {
                 await this.#firefly.setCategory(req.body.content.id, req.body.content.transactions, categories.get(newData.category));
             }
 
-            // try {
-            //     console.info("Trying to update payment date");
-            //     await this.#firefly.setDate(req.body.content.id, req.body.content.transactions, this.extractDate(description));
-            // } catch (e) {
-            //     console.error(`Error updating payment date: ${e}`);
-            // }
+            try {
+                console.info("Trying to update payment date");
+                await this.#firefly.setDate(req.body.content.id, req.body.content.transactions, this.extractDate(description));
+            } catch (e) {
+                console.error(`Error updating payment date: ${e}`);
+            }
 
             this.#jobList.setJobFinished(job.id);
         });
