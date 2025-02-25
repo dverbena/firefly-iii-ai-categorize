@@ -35,6 +35,8 @@ export default class FireflyService {
     }
 
     async setCategory(transactionId, transactions, categoryId) {
+        console.log("#firefly.setCategory started");
+
         const tag = getConfigVariable("FIREFLY_TAG", "AI categorized");
 
         const body = {
@@ -74,7 +76,9 @@ export default class FireflyService {
         console.info("Transaction updated")
     }
 
-    async setDate(transactionId, transactions, date) {
+    async setDate(transactionId, transactions, date) {    
+        console.log("#setDate started");
+
         if(date) {
             const body = {
                 apply_rules: true,

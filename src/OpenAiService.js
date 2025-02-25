@@ -15,13 +15,16 @@ export default class OpenAiService {
     }
 
     async classify(categories, destinationName, description) {
-        try {
+        try {            
+            console.log("#openAi.classify started");
+
             const prompt = this.#generatePrompt(categories, destinationName, description);
 
             const response = await this.#openAi.chat.completions.create({
                 model: this.#model,
                 messages: [{"role": "user", "content": prompt}],
             });
+
             console.log(response.choices[0].message);
             let guess = response.choices[0].message.content;
             guess = guess.replace("\n", "");
@@ -48,6 +51,8 @@ export default class OpenAiService {
                 };
             }
 
+            console.log("#openAi.classify completed");
+            
             return {
                 prompt,
                 response: response.choices[0].message.content,

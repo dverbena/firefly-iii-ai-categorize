@@ -33,10 +33,14 @@ export default class JobList {
         return job;
     }
 
-    updateJobData(id, data) {
+    updateJobData(id, data) {        
+        console.log("#jobList.updateJobData started");
+
         const job = this.#jobs.get(id);
         job.data = data;
         this.#eventEmitter.emit('job updated', {job, jobs: Array.from(this.#jobs.values())});
+        
+        console.log("#jobList.updateJobData completed");
     }
 
     setJobInProgress(id) {

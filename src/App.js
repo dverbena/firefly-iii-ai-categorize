@@ -129,12 +129,12 @@ export default class App {
             throw new WebhookException("No transactions are available in content.transactions");
         }
 
-        if (req.body.content.transactions[0].type !== "withdrawal") {
+        /*if (req.body.content.transactions[0].type !== "withdrawal") {
             throw new WebhookException("content.transactions[0].type has to be 'withdrawal'. Transaction will be ignored.");
-        }
+        }*/
 
-        if (req.body.content.transactions[0].category_id !== null) {
-            throw new WebhookException("content.transactions[0].category_id is already set. Transaction will be ignored.");
+        if ((req.body.content.transactions[0].category_id !== null) && (req.body.content.transactions[0].category_id !== '')) {
+            throw new WebhookException(`content.transactions[0].category_id is already set (${req.body.content.transactions[0].category_id}). Transaction will be ignored.`);
         }
 
         if (!req.body.content.transactions[0].description) {
@@ -179,7 +179,7 @@ export default class App {
                 newData.prompt = prompt;
                 newData.response = response;
             }
-
+            
             this.#jobList.updateJobData(job.id, newData);
 
             if (newData.category) {
@@ -187,7 +187,6 @@ export default class App {
             }
 
             try {
-                console.info("Trying to update payment date");
                 await this.#firefly.setDate(req.body.content.id, req.body.content.transactions, this.extractDate(description));
             } catch (e) {
                 console.error(`Error updating payment date: ${e}`);
